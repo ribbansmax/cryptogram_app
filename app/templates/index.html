@@ -8,47 +8,61 @@
 
 </head>
 <body>
-    <h1>Cryptogram App</h1>
-    <form method="POST">
-        <label for="message">Enter a message:</label>
-        <input type="text" id="message" name="message" value="{{ encrypted_message }}" required>
-        <button type="submit" name="encrypt">Encrypt</button>
-    </form>
+    <div class="container">
+        <h1>Cryptogram Creator</h1>
 
-    {% if result %}
-        <div id="encrypted-message">
-            <p>Encrypted Message: {{ result }}</p>
-        </div>
-
-        <h2>Available Letters:</h2>
-        <div id="letter-buttons">
-            {% for letter in available_letters %}
-                <button type="button" onclick="selectLetter('{{ letter }}')">{{ letter }}</button>
-            {% endfor %}
-        </div>
-
-        <form id="swap-form" method="POST" style="margin-top: 20px;">
-            <input type="hidden" name="encrypted_message" value="{{ result }}">
-            <input type="hidden" id="letter1" name="letter1">
-            <input type="hidden" id="letter2" name="letter2">
-            <button type="submit" name="swap" style="display: none;" id="swap-button">Swap Selected Letters</button>
+        <form method="POST" class="input-form">
+            <label for="message">Enter a message:</label>
+            <input type="text" id="message" name="message" value="{{ encrypted_message }}" required>
+            <button type="submit" name="encrypt">Encrypt</button>
         </form>
-    {% endif %}
+
+        {% if result %}
+            <div class="output-section">
+                <h2>Encrypted Message</h2>
+                <p class="encrypted-message">{{ result }}</p>
+
+                <h2>Swap Letters</h2>
+                <div class="letter-buttons">
+                    {% for letter in available_letters %}
+                        <button type="button" class="letter-btn" onclick="selectLetter('{{ letter }}', this)">{{ letter }}</button>
+                    {% endfor %}
+                </div>                
+
+                <form id="swap-form" method="POST">
+                    <input type="hidden" name="encrypted_message" value="{{ result }}">
+                    <input type="hidden" id="letter1" name="letter1">
+                    <input type="hidden" id="letter2" name="letter2">
+                    <button type="submit" name="swap" id="swap-button" style="visibility: hidden; position: absolute;">Swap Selected Letters</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
 
     <script>
         let selectedLetters = [];
-
-        function selectLetter(letter) {
-            if (!selectedLetters.includes(letter)) {
+    
+        function selectLetter(letter, button) {
+            if (selectedLetters.includes(letter)) {
+                // Deselect the letter
+                selectedLetters = selectedLetters.filter(l => l !== letter);
+                button.classList.remove("selected");
+            } else {
+                // Select the letter
                 selectedLetters.push(letter);
+                button.classList.add("selected");
             }
-
+    
             if (selectedLetters.length === 2) {
                 document.getElementById('letter1').value = selectedLetters[0];
                 document.getElementById('letter2').value = selectedLetters[1];
+                document.getElementById('swap-button').disabled = false;
                 document.getElementById('swap-button').click();
+            } else {
+                document.getElementById('swap-button').disabled = true;
             }
         }
     </script>
+    
 </body>
 </html>
