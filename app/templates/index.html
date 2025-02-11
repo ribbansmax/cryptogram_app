@@ -11,11 +11,13 @@
     <div class="container">
         <h1>Cryptogram Creator</h1>
 
-        <form method="POST" class="input-form">
-            <label for="message">Enter a message:</label>
-            <input type="text" id="message" name="message" value="{{ encrypted_message }}" required>
-            <button type="submit" name="encrypt">Encrypt</button>
-        </form>
+        {% if not solver_mode %}
+            <form method="POST" class="input-form">
+                <label for="message">Enter a message:</label>
+                <input type="text" id="message" name="message" required>
+                <button type="submit" name="encrypt">Encrypt</button>
+            </form>
+        {% endif %}
 
         {% if result %}
             <div class="output-section">
@@ -25,9 +27,13 @@
                 <h2>Swap Letters</h2>
                 <div class="letter-buttons">
                     {% for letter in available_letters %}
-                        <button type="button" class="letter-btn" onclick="selectLetter('{{ letter }}', this)">{{ letter }}</button>
+                        {% if letter in correct_letters %}
+                            <button type="button" class="letter-btn correct" disabled>{{ letter }}</button>
+                        {% else %}
+                            <button type="button" class="letter-btn" onclick="selectLetter('{{ letter }}', this)">{{ letter }}</button>
+                        {% endif %}
                     {% endfor %}
-                </div>                
+                </div>                           
 
                 <form id="swap-form" method="POST">
                     <input type="hidden" name="encrypted_message" value="{{ result }}">
@@ -43,6 +49,10 @@
         let selectedLetters = [];
     
         function selectLetter(letter, button) {
+            if (button.classList.contains("correct")) {
+                return;  // Prevent selection of correct letters
+            }
+    
             if (selectedLetters.includes(letter)) {
                 // Deselect the letter
                 selectedLetters = selectedLetters.filter(l => l !== letter);
@@ -56,10 +66,7 @@
             if (selectedLetters.length === 2) {
                 document.getElementById('letter1').value = selectedLetters[0];
                 document.getElementById('letter2').value = selectedLetters[1];
-                document.getElementById('swap-button').disabled = false;
                 document.getElementById('swap-button').click();
-            } else {
-                document.getElementById('swap-button').disabled = true;
             }
         }
     </script>
