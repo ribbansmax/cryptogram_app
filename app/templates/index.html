@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptogram App</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+</head>
+<body>
+    <h1>Cryptogram App</h1>
+    <form method="POST">
+        <label for="message">Enter a message:</label>
+        <input type="text" id="message" name="message" value="{{ encrypted_message }}" required>
+        <button type="submit" name="encrypt">Encrypt</button>
+    </form>
+
+    {% if result %}
+        <div id="encrypted-message">
+            <p>Encrypted Message: {{ result }}</p>
+        </div>
+
+        <h2>Available Letters:</h2>
+        <div id="letter-buttons">
+            {% for letter in available_letters %}
+                <button type="button" onclick="selectLetter('{{ letter }}')">{{ letter }}</button>
+            {% endfor %}
+        </div>
+
+        <form id="swap-form" method="POST" style="margin-top: 20px;">
+            <input type="hidden" name="encrypted_message" value="{{ result }}">
+            <input type="hidden" id="letter1" name="letter1">
+            <input type="hidden" id="letter2" name="letter2">
+            <button type="submit" name="swap" style="display: none;" id="swap-button">Swap Selected Letters</button>
+        </form>
+    {% endif %}
+
+    <script>
+        let selectedLetters = [];
+
+        function selectLetter(letter) {
+            if (!selectedLetters.includes(letter)) {
+                selectedLetters.push(letter);
+            }
+
+            if (selectedLetters.length === 2) {
+                document.getElementById('letter1').value = selectedLetters[0];
+                document.getElementById('letter2').value = selectedLetters[1];
+                document.getElementById('swap-button').click();
+            }
+        }
+    </script>
+</body>
+</html>
