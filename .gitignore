@@ -2,3 +2,4 @@ venv/
 .env
 *.pyc
 app/__pycache__/*
+cryptograms.db
