@@ -8,7 +8,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>Cryptogram Solver</h1>
+
+        {% if not solver_mode %}
+            <h1>Cryptogram Creator</h1>
+        {% endif %}
+
+        {% if solver_mode %}
+            <h1>Someone has sent you an encrypted message!</h1>
+        {% endif %}
 
         <!-- Display messages (errors, success) -->
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -31,22 +38,31 @@
         {% endif %}
 
         {% if solver_mode %}
-            <h2>Encrypted Message</h2>
+            <h2>Encrypted Message:</h2>
             <p class="encrypted-message">{{ encrypted_message }}</p>
             <!-- Display the short URL instead of the encrypted message -->
             {% if short_url %}
                 <p>Your encrypted message is ready: <a href="{{ short_url }}" target="_blank">{{ short_url }}</a></p>
             {% endif %}
 
-            <h2>Swap Letters</h2>
-            <div class="letter-buttons">
-                {% for letter in available_letters %}
-                    {% if letter in correct_letters %}
-                        <button type="button" class="letter-btn correct" disabled>{{ letter }}</button>
-                    {% else %}
-                        <button type="button" class="letter-btn" onclick="selectLetter('{{ letter }}', this)">{{ letter }}</button>
-                    {% endif %}
-                {% endfor %}
+            <div id="completion-message" style="display: none;">
+                <h2>Congratulations! You've Decrypted the Message!</h2>
+                <form action="{{ url_for('reset_session') }}" method="get">
+                    <button type="submit">Generate New Cryptogram</button>
+                </form>
+            </div>
+            
+            <div id="swap-section">
+                <h2>Press two buttons to swap letters</h2>
+                <div class="letter-buttons">
+                    {% for letter in available_letters %}
+                        {% if letter in correct_letters %}
+                            <button type="button" class="letter-btn correct" disabled>{{ letter }}</button>
+                        {% else %}
+                            <button type="button" class="letter-btn" onclick="selectLetter('{{ letter }}', this)">{{ letter }}</button>
+                        {% endif %}
+                    {% endfor %}
+                </div>
             </div>
 
             <form id="swap-form" method="POST">
@@ -56,9 +72,9 @@
                 <button type="submit" name="swap" id="swap-button" style="visibility: hidden; position: absolute;">Swap</button>
             </form>
         {% endif %}
-        <form action="{{ url_for('reset_session') }}" method="get">
+        <!-- <form action="{{ url_for('reset_session') }}" method="get">
             <button type="submit">Generate new Cryptogram</button>
-        </form>
+        </form> -->
     </div>
 
     <script>
@@ -85,6 +101,26 @@
                 document.getElementById('swap-button').click();
             }
         }
+        const availableLetters = {{ available_letters | tojson }};
+        const correctLetters = {{ correct_letters | tojson }};
+
+        console.log("Available Letters:", availableLetters.length);
+        console.log("Correct Letters:", Object.keys(correctLetters).length);
+
+        if (availableLetters.length === Object.keys(correctLetters).length) {
+            document.getElementById("completion-message").style.display = "block"; // Show success message
+            document.getElementById("swap-section").style.display = "none"; // Hide swap buttons
+        }
     </script>
+    <!-- <script>
+        // Debugging: Print Flask variables to browser console
+        const availableLetters = {{ available_letters | tojson }};
+        const correctLetters = {{ correct_letters | tojson }};
+        const encryptedMessage = {{ encrypted_message | tojson }};
+        
+        console.log("Available Letters:", availableLetters);
+        console.log("Correct Letters:", correctLetters);
+        console.log("Encrypted Message:", encryptedMessage);
+    </script> -->
 </body>
 </html>
